@@ -1,0 +1,228 @@
+import React, { useRef, useState } from "react";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+
+
+interface AddProductModalProps {
+  visible: boolean;
+  onHide: () => void;
+}
+
+export default function AddProductModal({
+  visible,
+  onHide,
+}: AddProductModalProps) {
+  // console.log("🔴 [Render] AddProductModal render ho raha hai!");
+  // const [productName, setProductName] = useState("");
+  // const [price, setPrice] = useState("");
+  const [formData, setFormData] = useState({
+    productName: "",
+    price: "",
+  });
+
+  // console.log("🟢 [Render] Zero Re-render wala Modal render hua!"); // 👈 Ye sirf 1 baar chalega!
+
+  // // 1. Inputs ke liye references create karo (Zero state!)
+  // const nameRef = useRef<HTMLInputElement>(null);
+  // const priceRef = useRef<HTMLInputElement>(null);
+
+  // const handleSubmit = () => {
+  //   // Jab user "Save" dabayega, tab hum data nikalenge!
+  //   const name = nameRef.current?.value;
+  //   const price = priceRef.current?.value;
+
+  //   console.log("Final Submitted Data using useRef:", { name, price });
+  //   console.log("Adding Product:", { name });
+  //   // Yahan hum aage chalkar API call karenge!
+  };
+  return (
+    <Dialog
+      header="Add Product"
+      visible={visible}
+      style={{ width: "50vw" }}
+      onHide={onHide}
+    >
+      <div className="flex flex-col gap-4">
+        <InputText
+          type="text"
+          placeholder="Product Name"
+          // value={productName}
+          // onChange={(e) => setProductName(e.target.value)}
+          value={formData.productName}
+          onChange={
+            (e) => setFormData({ ...formData, productName: e.target.value }) // 👈 Spread purana data bacha raha hai!
+          }
+          // ref={nameRef}
+        />
+        <InputText
+          type="text"
+          placeholder="Price"
+          // value={price}
+          // onChange={(e) => setPrice(e.target.value)}
+          value={formData.price}
+          onChange={
+            (e) => setFormData({ ...formData, price: e.target.value }) // 👈 Sirf price update hogi, Name wahi rahega!
+          }
+          // ref={priceRef}
+        />
+      </div>
+      <div className="flex justify-between gap-4 mt-6">
+        <button
+          onClick={handleSubmit}
+          className="bg-green-600 text-white p-2 rounded-lg w-full"
+        >
+          Save Product
+        </button>
+      </div>
+    </Dialog>
+  );
+}
+
+//second code rough
+import React, { use, useState } from "react";
+import { Dialog } from "primereact/dialog";
+import { InputText } from "primereact/inputtext";
+import { Dropdown } from "primereact/dropdown";
+import { InputNumber } from "primereact/inputnumber";
+import { Button } from "primereact/button";
+
+interface AddProductModalProps {
+  visible: boolean;
+  onHide: () => void;
+}
+
+const categories = [
+  { label: "Furniture", value: "furniture" },
+  { label: "Grocery", value: "grocery" },
+  { label: "Electronics", value: "electronics" },
+];
+
+export default function AddProductModal({
+  visible,
+  onHide,
+}: AddProductModalProps) {
+  console.log("🟢 Re-Render ");
+  // 1. 📂 Pure form ki single object state
+  const [formData, setFormData] = useState({
+    name: "",
+    category: "",
+    price: 0,
+    stock: 0,
+  });
+  // 🔴 Nayi errors state (Shuru mein khali)
+  const [errors, setErrors] = useState<{ [key: string]: string }>({});
+
+  const handleSubmit = () => {
+    const validationErrors: { [key: string]: string } = {}; // 🛒 Ek khali bag errors bharne ke liye
+
+    // 1. Name Check
+    if (!formData.name.trim()) {
+      validationErrors.name = "Product Name is required!";
+    }
+
+    // 2. Category Check
+    if (!formData.category) {
+      validationErrors.category = "Please select a category!";
+    }
+
+    // 3. Price Check
+    if (formData.price <= 0) {
+      validationErrors.price = "Price must be greater than zero!";
+    }
+
+    // 🚨 State mein errors bhar do!
+    setErrors(validationErrors);
+
+    // 🛑 Agar bag mein koi bhi error hai, toh aage mat badho!
+    if (Object.keys(validationErrors).length > 0) {
+      console.log("❌ Validation Failed! Errors are:", validationErrors);
+      return; // Function ko yahi rok do (API call nahi hogi)
+    }
+
+    // ✅ Agar sab sahi hai!
+    console.log("🟢 Validation Success! Payload is ready for API:", formData);
+  };
+  return (
+    <Dialog
+      header="Add Product"
+      visible={visible}
+      style={{ width: "40vw" }}
+      onHide={onHide}
+      className="p-fluid"
+    >
+      <div className="flex flex-col gap-4 p-2">
+        {/* 🏷️ Product Name */}
+        <div className="flex flex-col gap-1">
+          <label className="font-semibold text-sm text-gray-700">
+            Product Name
+          </label>
+          <InputText
+            value={formData.name}
+            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+            placeholder="Ex: Sofa"
+            invalid={!!errors.name} // 👈 Agar errors.name mein message hai, to border RED ho jayegi!
+          />
+          {/* 👇 Agar error hai, to neeche red text dikhao */}
+          {errors.name && (
+            <small className="text-red-500 text-xs">{errors.name}</small>
+          )}
+        </div>
+
+        {/* 📂 Category */}
+        <div className="flex flex-col gap-1">
+          <label className="font-semibold text-sm text-gray-700">
+            Category
+          </label>
+          <Dropdown
+            value={formData.category}
+            options={categories}
+            onChange={(e) => setFormData({ ...formData, category: e.value })}
+            placeholder="Select Category"
+          />
+        </div>
+
+        {/* 💰 Price */}
+        <div className="flex flex-col gap-1">
+          <label className="font-semibold text-sm text-gray-700">Price</label>
+          <InputNumber
+            value={formData.price}
+            onValueChange={(e) =>
+              setFormData({ ...formData, price: e.value || 0 })
+            }
+            mode="currency"
+            currency="INR"
+            locale="en-IN"
+          />
+        </div>
+
+        {/* 📦 Stock */}
+        <div className="flex flex-col gap-1">
+          <label className="font-semibold text-sm text-gray-700">Stock</label>
+          <InputNumber
+            value={formData.stock}
+            onValueChange={(e) =>
+              setFormData({ ...formData, stock: e.value || 0 })
+            }
+            placeholder="Enter quantity"
+          />
+        </div>
+
+        {/* 🔘 Buttons */}
+        <div className="flex  gap-2 mt-4">
+          <Button
+            onClick={onHide}
+            className="px-4 py-2 border rounded-lg text-gray-600 cursor-pointer justify-center cancle-btn"
+          >
+            Cancel
+          </Button>
+          <Button
+            onClick={handleSubmit}
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg font-semibold cursor-pointer justify-center save-btn"
+          >
+            Save Product
+          </Button>
+        </div>
+      </div>
+    </Dialog>
+  );
+}

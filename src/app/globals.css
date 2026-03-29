@@ -1,0 +1,13 @@
+@import "tailwindcss";
+
+body {
+  font-family: Arial, Helvetica, sans-serif;
+}
+.p-button.save-btn {
+  background-color: rgb(3, 116, 3);
+  border: none;
+}
+.p-button.cancle-btn {
+  background-color: #b40202;
+  border: none;
+}
