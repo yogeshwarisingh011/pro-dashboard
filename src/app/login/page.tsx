@@ -1,21 +1,30 @@
 "use client";
 import { useAuth } from "@/src/hooks/useAuth";
+import { loginSuccess } from "@/src/redux/authSlice";
 
 import { useRouter } from "next/navigation";
 import React, { useState } from "react";
+import { useDispatch } from "react-redux";
 
 export default function LoginPage() {
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
 
-  const { setUser } = useAuth();
+  // const { setUser } = useAuth();
   const router = useRouter();
+
+  const dispatch = useDispatch(); // Ye hamara Delivery Boy hai
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    // Maan lo user ne 'Yogeshwari' type kiya
+    const userData = { name: "Yogeshwari Singh" };
 
+    // 🚀 REDUX MEIN DATA BHEJO
+    dispatch(loginSuccess(userData));
     // 1. Koi API nahi, bas direct login!
-    setUser({ name: userName });
+    // setUser({ name: userName });
+
     // 2. LocalStorage mein bhi save kar lo (Persistence ke liye)
     localStorage.setItem("userName", userName);
 

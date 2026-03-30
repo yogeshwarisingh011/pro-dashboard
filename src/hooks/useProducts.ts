@@ -4,7 +4,7 @@ import api from "../services/api";
 
 import { ProductFormData } from "../validations/productSchema";
 import toast from "react-hot-toast";
-import { Product } from "../app/page";
+import { Product } from "../app/inventory/page";
 
 // --- API Functions (Private to this file) ---
 const fetchProducts = async () => {

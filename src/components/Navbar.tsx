@@ -3,18 +3,27 @@ import React from "react";
 
 import { useRouter } from "next/navigation";
 import { LogOut, User } from "lucide-react"; // Sundar icons ke liye
-import { useAuth } from "../hooks/useAuth";
+// import { useAuth } from "../hooks/useAuth";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "../redux/store";
+import { logout } from "../redux/authSlice";
 
 export default function Navbar() {
-  const { user, setUser } = useAuth();
+  // const { user, setUser } = useAuth();
   const router = useRouter();
+  const user = useSelector((state: RootState) => state.auth.user);
+
+  const dispatch = useDispatch();
 
   const handleLogout = () => {
-    // 1. Memory saaf karo
-    setUser(null);
-    // 2. LocalStorage se token hatao
+    // 1. Redux Manager ko bolo state null kar de
+    dispatch(logout());
+
+    // 2. LocalStorage saaf karo (Persistence khatam)
     localStorage.removeItem("token");
-    // 3. Wapas login par bhej do
+    localStorage.removeItem("userName"); // Agar aapne username save kiya tha
+
+    // 3. Login page par bhej do
     router.push("/login");
   };
 

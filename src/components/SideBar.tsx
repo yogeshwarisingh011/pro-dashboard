@@ -1,12 +1,15 @@
 "use client";
 import { LayoutDashboard, ShoppingCart, Users, Settings } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 const SideBar = () => {
+  const pathname = usePathname();
   const menuItems = [
-    { name: "Dashboard", icon: LayoutDashboard },
-    { name: "Products", icon: ShoppingCart },
-    { name: "Customers", icon: Users },
-    { name: "Settings", icon: Settings },
+    { name: "Dashboard", icon: LayoutDashboard, path: "/inventory" },
+    { name: "Products", icon: ShoppingCart, path: "/products" },
+    { name: "Customers", icon: Users, path: "/customers" },
+    { name: "Settings", icon: Settings, path: "/settings" },
   ];
 
   return (
@@ -16,13 +19,18 @@ const SideBar = () => {
 
         <nav className="flex-1">
           {menuItems.map((item) => (
-            <div
+            <Link
+              href={item.path}
               key={item.name}
-              className="flex items-center gap-3 p-3 mb-2 rounded-lg hover:bg-slate-800 cursor-pointer transition-colors"
+              className={`flex items-center gap-3 p-3 mb-2 rounded-lg transition-colors ${
+                pathname === item.path
+                  ? "bg-blue-600 text-white"
+                  : "hover:bg-slate-800 text-slate-400"
+              }`}
             >
               <item.icon size={20} />
               <span>{item.name}</span>
-            </div>
+            </Link>
           ))}
         </nav>
       </div>
