@@ -8,7 +8,7 @@ import { Button } from "primereact/button";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema, ProductFormData } from "../validations/productSchema";
-import { Product } from "../app/page";
+import { Product } from "../app/inventory/page";
 
 interface AddProductModalProps {
   visible: boolean;

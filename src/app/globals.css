@@ -11,3 +11,9 @@ body {
   background-color: #b40202;
   border: none;
 }
+.primary-btn.p-button {
+  @apply px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-lg hover:bg-indigo-700 border-none w-[130px] justify-center;
+}
+.secondary-btn.p-button {
+  @apply px-4 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg hover:bg-gray-200 w-[90px] justify-center;
+}

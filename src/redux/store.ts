@@ -1,10 +1,11 @@
 import { configureStore } from "@reduxjs/toolkit";
 import authReducer from "./authSlice";
+import productReducer from "./productSlice";
 
 export const store = configureStore({
   reducer: {
-    // 👈 Abhi ye khali hai, kal hum yahan 'auth' daalenge
     auth: authReducer,
+    products: productReducer,
   },
 });
 
