@@ -74,7 +74,6 @@ export default function AddProductModal({
     } else {
       onProductAdd(data); // ➕ Agar naya tha, toh add wala function chalao!
     }
-
     reset();
     onHide();
   };

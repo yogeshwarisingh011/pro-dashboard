@@ -49,7 +49,20 @@ export const deleteProduct = createAsyncThunk(
     return id;
   },
 );
+// 3. Add Product Thunk
+export const addProduct = createAsyncThunk(
+  "products/add",
+  async (newProduct: unknown) => {
+    // Fake API ko request bhej rahe hain
+    const response = await axios.post(
+      "https://dummyjson.com/products/add",
+      newProduct,
+    );
 
+    // Server naya object return karega (with a new ID)
+    return response.data;
+  },
+);
 const productSlice = createSlice({
   name: "products",
 
@@ -91,6 +104,21 @@ const productSlice = createSlice({
       .addCase(deleteProduct.rejected, (state) => {
         state.loading = false;
         state.error = "Delete karne mein error aaya!";
+      })
+
+      // Add product Cases
+      .addCase(addProduct.pending, (state) => {
+        state.loading = true; // Delete hote waqt bhi loading dikha sakte hain
+      })
+      .addCase(addProduct.fulfilled, (state, action) => {
+        state.loading = false;
+        // 🔥 ASLI MAGIC: Filter method
+        // Hum keh rahe hain: "Saare products rakho, bas wo wala hata do jiski ID match ho gayi"
+        state.items = [action.payload, ...state.items];
+      })
+      .addCase(addProduct.rejected, (state) => {
+        state.loading = false;
+        state.error = "Add karne mein error aaya!";
       });
   },
 });

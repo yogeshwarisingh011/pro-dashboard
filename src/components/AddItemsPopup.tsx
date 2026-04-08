@@ -1,10 +1,16 @@
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { Dropdown, DropdownChangeEvent } from "primereact/dropdown";
+import { Dropdown } from "primereact/dropdown";
 import { InputNumber } from "primereact/inputnumber";
 import { InputText } from "primereact/inputtext";
 import { InputTextarea } from "primereact/inputtextarea";
-import React, { useState } from "react";
+import React from "react";
+import { Controller, useForm } from "react-hook-form";
+import { AddItemFormData, additemSchema } from "../validations/additemSchema";
+import { useDispatch } from "react-redux";
+import { AppDispatch } from "../redux/store";
+import { addProduct } from "../redux/productSlice";
 
 interface Category {
   name: string;
@@ -17,15 +23,51 @@ interface AddItemPopupProps {
 }
 
 const AddItemsPopup = ({ visible, onHide }: AddItemPopupProps) => {
-  const [value, setValue] = useState<string>("");
+  // 🎯 RHF Hook Setup
+  const {
+    register,
+    control,
+    handleSubmit,
+    formState: { errors },
+    reset,
+  } = useForm<AddItemFormData>({
+    resolver: zodResolver(additemSchema),
+    defaultValues: {
+      title: "",
+      description: "",
+      category: "",
+      price: 0,
+      rating: 0,
+    },
+  });
+  const dispatch = useDispatch<AppDispatch>();
 
-  const [category, setCategory] = useState<Category | null>(null);
   const categories: Category[] = [
     { name: "Beauty", code: "NY" },
     { name: "Furniture", code: "RM" },
     { name: "Groceries", code: "LDN" },
   ];
 
+  // Form Submit Hone par kya hoga
+  // const onSubmit = (data: AddItemFormData) => {
+  //   console.log("Form Submitted Successfully:", data);
+  //   // Yahan hum apna API call (dispatch) karenge
+  //   reset(); // Form khali karne ke liye
+  //   onHide(); // Modal band karne ke liye
+  // };
+  const onSubmit = (data: AddItemFormData) => {
+    // Hum dummy data ke liye ek fake ID aur image add kar dete hain
+    const finalData = {
+      ...data,
+      id: crypto.randomUUID(), // Temporary ID
+      thumbnail: "https://picsum.photos/200", // Fake Image
+    };
+
+    dispatch(addProduct(finalData)); // 🚀 Redux ko bheja!
+    console.log("Form Submitted Successfully:", finalData);
+    reset();
+    onHide();
+  };
   if (!visible) return null;
 
   return (
@@ -36,8 +78,8 @@ const AddItemsPopup = ({ visible, onHide }: AddItemPopupProps) => {
       onHide={onHide}
       className="p-fluid"
     >
-      <form className="space-y-4">
-        {/* Image Upload Placeholder */}
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+        {/* Image Upload Placeholder (Keeping it as you requested) */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Product Image
@@ -53,70 +95,128 @@ const AddItemsPopup = ({ visible, onHide }: AddItemPopupProps) => {
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Product Name
           </label>
-          <InputText placeholder="e.g. Apple iPhone 15" />
+          <InputText
+            {...register("title")}
+            placeholder="e.g. Apple iPhone 15"
+            className={errors.title ? "p-invalid" : ""}
+          />
+          {errors.title && (
+            <small className="p-error">{errors.title.message}</small>
+          )}
         </div>
 
-        {/* Description */}
+        {/* Description - Controller added */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Description
           </label>
-          <InputTextarea
-            value={value}
-            onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) =>
-              setValue(e.target.value)
-            }
-            rows={5}
-            cols={30}
+          <Controller
+            name="description"
+            control={control}
+            render={({ field }) => (
+              <InputTextarea
+                {...field}
+                rows={5}
+                className={errors.description ? "p-invalid" : ""}
+                placeholder="Tell us about the product..."
+              />
+            )}
           />
+          {errors.description && (
+            <small className="p-error">{errors.description.message}</small>
+          )}
         </div>
 
         <div className="grid grid-cols-2 gap-4">
-          {/* Price */}
+          {/* Price - Controller added */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Price ($)
             </label>
-            <InputNumber
-              mode="currency"
-              currency="INR"
-              locale="en-IN"
-              placeholder="0.00"
+            <Controller
+              name="price"
+              control={control}
+              render={({ field }) => (
+                <InputNumber
+                  value={field.value}
+                  onValueChange={(e) => field.onChange(e.value)}
+                  mode="currency"
+                  currency="INR"
+                  locale="en-IN"
+                  placeholder="0.00"
+                  className={errors.price ? "p-invalid" : ""}
+                />
+              )}
             />
+            {errors.price && (
+              <small className="p-error">{errors.price.message}</small>
+            )}
           </div>
 
-          {/* Rating */}
+          {/* Rating - Controller added */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1.5">
               Rating (1-5)
             </label>
-            <InputNumber placeholder="4.5" />
+            <Controller
+              name="rating"
+              control={control}
+              render={({ field }) => (
+                <InputNumber
+                  value={field.value}
+                  onValueChange={(e) => field.onChange(e.value)}
+                  placeholder="4.5"
+                  min={0}
+                  max={5}
+                  step={0.1}
+                  className={errors.rating ? "p-invalid" : ""}
+                />
+              )}
+            />
+            {errors.rating && (
+              <small className="p-error">{errors.rating.message}</small>
+            )}
           </div>
         </div>
 
-        {/* Category */}
+        {/* Category - Controller added */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1.5">
             Category
           </label>
-          <Dropdown
-            value={category}
-            onChange={(e: DropdownChangeEvent) => setCategory(e.value)}
-            options={categories}
-            optionLabel="name"
-            placeholder="Select a City"
-            className="w-full md:w-14rem"
+          <Controller
+            name="category"
+            control={control}
+            render={({ field }) => (
+              <Dropdown
+                value={field.value}
+                onChange={(e) => field.onChange(e.value)}
+                options={categories}
+                optionLabel="name"
+                optionValue="name"
+                placeholder="Select a Category"
+                className={errors.category ? "p-invalid w-full" : "w-full"}
+              />
+            )}
           />
+          {errors.category && (
+            <small className="p-error">{errors.category.message}</small>
+          )}
         </div>
 
         {/* Action Buttons */}
         <div className="flex justify-end gap-2.5 pt-4">
-          <Button type="button" onClick={onHide} className="secondary-btn">
-            Cancel
-          </Button>
-          <Button type="submit" className="primary-btn">
-            Add Product
-          </Button>
+          <Button
+            type="button"
+            label="Cancel"
+            onClick={onHide}
+            className="p-button-secondary p-button-text"
+          />
+          <Button
+            type="submit"
+            label="Add Product"
+            className="p-button-primary"
+          />
         </div>
       </form>
     </Dialog>
